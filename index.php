@@ -47,7 +47,7 @@ include 'header.php';
 
 <script>
     navigator.serviceWorker.ready.then(function(registration) {
-        const vapidPublicKey = "<?= getenv('VAPID_PUBLIC_KEY') ?>"; // VAPID public anahtarını ekleyin
+        const vapidPublicKey = "BBC9_2E-lrmIPjKyS8PQYsdwUPV_EojCko40zx2jK2NUzX7JP0rr3NMw45fjdXoIG6sCRph_MdoK4AzZ4mMZPJk";
         const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
         registration.pushManager.subscribe({
