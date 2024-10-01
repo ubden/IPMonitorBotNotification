@@ -4,7 +4,7 @@ include 'config.php'; // Veritabanı bağlantısı
 // Telegram API'yi kullanarak mesaj gönderen fonksiyon
 function send_telegram_message($message) {
     $telegram_api_token = '7681215471:AAFZR6o3zUI1oDExG1HGKqMMwCEZoe9g7eE'; // Bot token'inizi buraya ekleyin
-    $chat_id = '1057579051**'; // Bildirimleri göndermek istediğiniz kişinin chat ID'sini buraya ekleyin
+    $chat_id = '1057579051'; // Bildirimleri göndermek istediğiniz kişinin chat ID'sini buraya ekleyin
 	
 
     // Telegram API URL'i
