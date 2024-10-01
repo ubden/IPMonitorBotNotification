@@ -2,14 +2,54 @@
 include 'config.php'; // Veritabanı bağlantısı
 
 /**
- * Ping fonksiyonu: IP adresine ping atar ve sonucunu döner.
+ * 5 ping denemesi ile IP'yi kontrol eden fonksiyon.
  */
 function ping($host) {
     $output = [];
-    $command = sprintf("ping -c 1 -W 5 %s", escapeshellarg($host)); // 5 saniye timeout ile ping
+    $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 ping, her biri 5 saniye timeout
     exec($command, $output, $status);
     
-    return $status === 0 ? 'online' : 'offline';
+    return $status === 0 ? 'online' : 'offline'; // Eğer herhangi bir ping başarılı olursa 'online'
+}
+
+/**
+ * Aynı anda birden fazla IP'yi kontrol etmek için paralel işlemler (multi-cURL)
+ */
+function check_ips_in_parallel($ips) {
+    $multiCurl = [];
+    $results = [];
+    $mh = curl_multi_init(); // Çoklu cURL işlemi başlatıyoruz
+
+    foreach ($ips as $ip) {
+        $host = explode(':', $ip['host_port'])[0]; // IP adresini alıyoruz
+        $ch = curl_init();
+
+        // Ping komutunu çalıştıracak bir PHP dosyasına cURL isteği gönderiyoruz
+        // Örnek: ping işlemi için kendi sunucunuzda bir PHP dosyası barındırabilir ve ona istekte bulunabilirsiniz
+        $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host));
+        curl_setopt($ch, CURLOPT_URL, "http://localhost/ping.php?cmd=" . urlencode($command)); // Burada kendi komutunuzu belirleyin
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 30 saniye timeout
+        
+        $multiCurl[$ip['id']] = $ch; // Her bir IP için cURL isteği ekliyoruz
+        curl_multi_add_handle($mh, $ch);
+    }
+
+    $running = null;
+    do {
+        curl_multi_exec($mh, $running);
+        curl_multi_select($mh);
+    } while ($running > 0);
+
+    // Sonuçları topluyoruz
+    foreach ($multiCurl as $id => $ch) {
+        $response = curl_multi_getcontent($ch);
+        $results[$id] = strpos($response, '1 received') !== false ? 'online' : 'offline'; // Eğer en az 1 ping başarılıysa 'online'
+        curl_multi_remove_handle($mh, $ch);
+    }
+
+    curl_multi_close($mh); // Multi-cURL işlemini kapatıyoruz
+    return $results; // Sonuçları döndürüyoruz
 }
 
 try {
@@ -22,9 +62,11 @@ try {
         'logs' => []
     ];
 
+    // Tüm IP'lere aynı anda ping atıyoruz
+    $pingResults = check_ips_in_parallel($ips);
+
     foreach ($ips as $ip) {
-        $host = explode(':', $ip['host_port'])[0]; // IP adresini alıyoruz
-        $ping_result = ping($host); // Ping işlemi
+        $ping_result = $pingResults[$ip['id']]; // Paralel ping sonuçlarını alıyoruz
 
         // Ping her zaman atılır ve last_ping_time güncellenir
         $status_changed = false;
