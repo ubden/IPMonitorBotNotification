@@ -2,15 +2,29 @@
 include 'config.php'; // Veritabanı bağlantısı
 
 /**
- * 5 ping denemesi ile IP'yi kontrol eden fonksiyon.
+ * IP adresine ping atma fonksiyonu (ICMP protokolü).
+ * Eğer port belirtilmemişse bu fonksiyon çağrılacak.
  */
 function ping($host) {
     $output = [];
     $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 ping, her biri 5 saniye timeout
     exec($command, $output, $status);
 
-    // Eğer her biri başarısız olduysa offline, en az bir başarı varsa online
-    return $status === 0 ? 'online' : 'offline';
+    return $status === 0 ? 'online' : 'offline'; // En az bir ping başarılı olursa 'online'
+}
+
+/**
+ * Belirli bir IP adresindeki portun açık olup olmadığını kontrol eder.
+ * Eğer port belirtilmişse bu fonksiyon çağrılacak.
+ */
+function check_port($host, $port) {
+    $connection = @fsockopen($host, $port, $errno, $errstr, 5); // 5 saniye timeout ile bağlantı denemesi
+    if (is_resource($connection)) {
+        fclose($connection);
+        return 'open'; // Eğer bağlantı kurulabilirse, port açıktır
+    } else {
+        return 'closed'; // Eğer bağlantı kurulamazsa, port kapalıdır
+    }
 }
 
 try {
@@ -24,10 +38,18 @@ try {
     ];
 
     foreach ($ips as $ip) {
-        $host = explode(':', $ip['host_port'])[0]; // IP adresini alıyoruz
-        $ping_result = ping($host); // Ping işlemi
+        $host_port = explode(':', $ip['host_port']); // IP ve portu ayırıyoruz
+        $host = $host_port[0]; // IP adresi
+        $port = $host_port[1] ?? null; // Port numarası (belirtilmemişse null olur)
 
-        // Ping her zaman atılır ve last_ping_time güncellenir
+        // Eğer port belirtilmişse port kontrolü yap, yoksa ping yap
+        if ($port !== null) {
+            $ping_result = check_port($host, $port); // Port kontrolü yapıyoruz
+        } else {
+            $ping_result = ping($host); // Port yoksa ICMP ping atıyoruz
+        }
+
+        // Ping veya port durumu güncellenir
         $status_changed = false;
         $last_online_time_update = false;
 
@@ -54,7 +76,7 @@ try {
             UPDATE ips 
             SET result = :result, 
                 last_ping_time = NOW(), 
-                last_online_time = IF(:result = 'online' AND :status_changed = true AND :last_online_update = true, NOW(), last_online_time) 
+                last_online_time = IF(:result = 'online' AND :status_changed = true AND :last_online_update = true, NOW(), last_online_time)
             WHERE id = :id
         ");
         $stmt->execute([
