@@ -2,38 +2,14 @@
 include 'config.php'; // Veritabanı bağlantısı
 
 /**
- * IP adresine ping atma fonksiyonu (ICMP protokolü).
- * Eğer port belirtilmemişse bu fonksiyon çağrılacak.
+ * Ping fonksiyonu: IP adresine ping atar ve sonucunu döner.
  */
-function ping($host, $retry = 3) {
-    for ($i = 0; $i < $retry; $i++) {
-        $output = [];
-        $command = sprintf("ping -c 1 -W 5 %s", escapeshellarg($host)); // 1 ping, 5 saniye timeout
-        exec($command, $output, $status);
-        if ($status === 0) {
-            return 'online'; // En az bir ping başarılı olursa 'online'
-        }
-        // Gecikme ekleyelim ki sistemi zorlamayalım
-        sleep(1);
-    }
-    return 'offline'; // Ping başarılı olmazsa offline
-}
-
-/**
- * Belirli bir IP adresindeki portun açık olup olmadığını kontrol eder.
- * Eğer port belirtilmişse bu fonksiyon çağrılacak.
- */
-function check_port($host, $port, $retry = 3) {
-    for ($i = 0; $i < $retry; $i++) {
-        $connection = @fsockopen($host, $port, $errno, $errstr, 5); // 5 saniye timeout ile bağlantı denemesi
-        if (is_resource($connection)) {
-            fclose($connection);
-            return 'open'; // Eğer bağlantı kurulabilirse, port açıktır
-        }
-        // Gecikme ekleyelim ki sistemi zorlamayalım
-        sleep(1);
-    }
-    return 'closed'; // Eğer bağlantı kurulamazsa, port kapalıdır
+function ping($host) {
+    $output = [];
+    $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 saniye timeout ile ping
+    exec($command, $output, $status);
+    
+    return $status === 0 ? 'online' : 'offline';
 }
 
 try {
@@ -47,28 +23,15 @@ try {
     ];
 
     foreach ($ips as $ip) {
-        $host_port = explode(':', $ip['host_port']); // IP ve portu ayırıyoruz
-        $host = $host_port[0]; // IP adresi
-        $port = $host_port[1] ?? null; // Port numarası (belirtilmemişse null olur)
+        $host = explode(':', $ip['host_port'])[0]; // IP adresini alıyoruz
+        $ping_result = ping($host); // Ping işlemi
 
-        // Gecikme ekleyelim ki her ping arka arkaya yapılmasın
-        sleep(2);
-
-        // Eğer port belirtilmişse port kontrolü yap, yoksa ping yap
-        if ($port !== null && is_numeric($port)) {
-            $port_status = check_port($host, $port); // Port kontrolü yapıyoruz
-            $result = ($port_status === 'open') ? 'online' : 'offline'; // Porta göre sonuç belirliyoruz
-        } else {
-            $ping_result = ping($host); // Port yoksa ICMP ping atıyoruz
-            $result = $ping_result; // Ping sonucuna göre 'online' ya da 'offline'
-        }
-
-        // Durum güncellenir ve loglama yapılır
+        // Ping her zaman atılır ve last_ping_time güncellenir
         $status_changed = false;
         $last_online_time_update = false;
 
         // Eğer IP'nin durumu değişmişse log ekleyelim
-        if ($result !== $ip['result']) {
+        if ($ping_result !== $ip['result']) {
             $status_changed = true;
 
             // Durum loglama
@@ -76,11 +39,11 @@ try {
             $log_stmt->execute([
                 ':ip_id' => $ip['id'],
                 ':previous' => $ip['result'],
-                ':current' => $result
+                ':current' => $ping_result
             ]);
 
             // Eğer IP yeni online olmuşsa, last_online_time'ı güncelle
-            if ($result === 'online') {
+            if ($ping_result === 'online') {
                 $last_online_time_update = true;
             }
         }
@@ -90,11 +53,11 @@ try {
             UPDATE ips 
             SET result = :result, 
                 last_ping_time = NOW(), 
-                last_online_time = IF(:result = 'online' AND :status_changed = true AND :last_online_update = true, NOW(), last_online_time)
+                last_online_time = IF(:result = 'online' AND :status_changed = true AND :last_online_update = true, NOW(), last_online_time) 
             WHERE id = :id
         ");
         $stmt->execute([
-            ':result' => $result,
+            ':result' => $ping_result,
             ':id' => $ip['id'],
             ':status_changed' => $status_changed,
             ':last_online_update' => $last_online_time_update
@@ -106,8 +69,8 @@ try {
             'name' => $ip['name'],
             'host_port' => $ip['host_port'],
             'last_ping_time' => $ip['last_ping_time'],
-            'result' => $result,
-            'uptime' => ($result === 'online' && $ip['last_online_time']) ? (new DateTime())->diff(new DateTime($ip['last_online_time']))->format('%h saat %i dakika') : 'N/A',
+            'result' => $ping_result,
+            'uptime' => ($ping_result === 'online' && $ip['last_online_time']) ? (new DateTime())->diff(new DateTime($ip['last_online_time']))->format('%h saat %i dakika') : 'N/A',
             'status_changed' => $status_changed
         ];
     }
