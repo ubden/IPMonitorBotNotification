@@ -2,13 +2,14 @@
 include 'config.php'; // Veritabanı bağlantısı
 
 /**
- * Ping fonksiyonu: IP adresine ping atar ve sonucunu döner.
+ * 5 ping denemesi ile IP'yi kontrol eden fonksiyon.
  */
 function ping($host) {
     $output = [];
-    $command = sprintf("ping -c 1 -W 5 %s", escapeshellarg($host)); // 5 saniye timeout ile ping
+    $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 ping, her biri 5 saniye timeout
     exec($command, $output, $status);
-    
+
+    // Eğer her biri başarısız olduysa offline, en az bir başarı varsa online
     return $status === 0 ? 'online' : 'offline';
 }
 
