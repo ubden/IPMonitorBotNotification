@@ -6,10 +6,23 @@ include 'config.php'; // Veritabanı bağlantısı
  */
 function ping($host) {
     $output = [];
-    $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 saniye timeout ile ping
+    $command = sprintf("ping -c 5 -W 5 %s", escapeshellarg($host)); // 5 ping, her biri 5 saniye timeout
     exec($command, $output, $status);
     
-    return $status === 0 ? 'online' : 'offline';
+    return $status === 0 ? 'online' : 'offline'; // En az bir ping başarılı olursa 'online'
+}
+
+/**
+ * Belirli bir IP adresindeki portun açık olup olmadığını kontrol eder.
+ */
+function check_port($host, $port) {
+    $connection = @fsockopen($host, $port, $errno, $errstr, 5); // 5 saniye timeout ile bağlantı denemesi
+    if (is_resource($connection)) {
+        fclose($connection);
+        return 'online'; // Port açık
+    } else {
+        return 'offline'; // Port kapalı
+    }
 }
 
 try {
@@ -23,15 +36,23 @@ try {
     ];
 
     foreach ($ips as $ip) {
-        $host = explode(':', $ip['host_port'])[0]; // IP adresini alıyoruz
-        $ping_result = ping($host); // Ping işlemi
+        $host_port = explode(':', $ip['host_port']); // IP ve portu ayırıyoruz
+        $host = $host_port[0]; // IP adresi
+        $port = $host_port[1] ?? null; // Port numarası (belirtilmemişse null olur)
+
+        // Eğer port belirtilmişse port kontrolü yap, yoksa ping yap
+        if ($port !== null && is_numeric($port)) {
+            $result = check_port($host, $port); // Port kontrolü yapıyoruz
+        } else {
+            $result = ping($host); // Port yoksa ICMP ping atıyoruz
+        }
 
         // Ping her zaman atılır ve last_ping_time güncellenir
         $status_changed = false;
         $last_online_time_update = false;
 
         // Eğer IP'nin durumu değişmişse log ekleyelim
-        if ($ping_result !== $ip['result']) {
+        if ($result !== $ip['result']) {
             $status_changed = true;
 
             // Durum loglama
@@ -39,11 +60,11 @@ try {
             $log_stmt->execute([
                 ':ip_id' => $ip['id'],
                 ':previous' => $ip['result'],
-                ':current' => $ping_result
+                ':current' => $result
             ]);
 
             // Eğer IP yeni online olmuşsa, last_online_time'ı güncelle
-            if ($ping_result === 'online') {
+            if ($result === 'online') {
                 $last_online_time_update = true;
             }
         }
@@ -57,7 +78,7 @@ try {
             WHERE id = :id
         ");
         $stmt->execute([
-            ':result' => $ping_result,
+            ':result' => $result,
             ':id' => $ip['id'],
             ':status_changed' => $status_changed,
             ':last_online_update' => $last_online_time_update
@@ -69,8 +90,8 @@ try {
             'name' => $ip['name'],
             'host_port' => $ip['host_port'],
             'last_ping_time' => $ip['last_ping_time'],
-            'result' => $ping_result,
-            'uptime' => ($ping_result === 'online' && $ip['last_online_time']) ? (new DateTime())->diff(new DateTime($ip['last_online_time']))->format('%h saat %i dakika') : 'N/A',
+            'result' => $result,
+            'uptime' => ($result === 'online' && $ip['last_online_time']) ? (new DateTime())->diff(new DateTime($ip['last_online_time']))->format('%h saat %i dakika') : 'N/A',
             'status_changed' => $status_changed
         ];
     }
