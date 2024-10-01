@@ -1,7 +1,7 @@
 <?php
 function sendTelegramNotification($message, $isOffline = false) {
     $botToken = "7681215471:AAFZR6o3zUI1oDExG1HGKqMMwCEZoe9g7eE"; // Bot token'ınızı buraya ekleyin
-    $chatId = "4555962994"; // Chat ID'nizi buraya ekleyin
+    $chatId = "-4555962994"; // Chat ID'nizi buraya ekleyin
 
     // Offline durumları için ALERT mesajını ve emoji ekle
     if ($isOffline) {
