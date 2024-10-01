@@ -42,36 +42,54 @@ $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'header.php';
 ?>
 
-
-<!-- YENİ PUSH BİLDİRİMİ TEST EDİYORUM -->
-
+<!-- Push Notification ve Service Worker -->
 <script>
-    navigator.serviceWorker.ready.then(function(registration) {
-        const vapidPublicKey = "BBC9_2E-lrmIPjKyS8PQYsdwUPV_EojCko40zx2jK2NUzX7JP0rr3NMw45fjdXoIG6sCRph_MdoK4AzZ4mMZPJk";
-        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
-
-        registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: convertedVapidKey
-        }).then(function(subscription) {
-            // Abonelik detaylarını sunucuya gönderiyoruz
-            fetch('save_subscription.php', {
-                method: 'POST',
-                body: JSON.stringify(subscription),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(response => {
-                if (response.ok) {
-                    console.log('Kullanıcı başarıyla abone oldu.');
-                } else {
-                    console.log('Abonelik kaydedilemedi.');
-                }
-            });
-        }).catch(function(error) {
-            console.error('Abonelik başarısız:', error);
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Bildirim izni verildi.');
+                registerServiceWorkerAndSubscribe();
+            } else {
+                console.log('Bildirim izni reddedildi.');
+            }
         });
-    });
+    }
+
+    // Service Worker kaydı ve Push aboneliği
+    function registerServiceWorkerAndSubscribe() {
+        navigator.serviceWorker.register('service-worker.js')
+            .then(function(registration) {
+                console.log('Service Worker başarıyla kaydedildi.', registration);
+
+                const vapidPublicKey = "BBC9_2E-lrmIPjKyS8PQYsdwUPV_EojCko40zx2jK2NUzX7JP0rr3NMw45fjdXoIG6sCRph_MdoK4AzZ4mMZPJk";
+                const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+                registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedVapidKey
+                }).then(function(subscription) {
+                    // Abonelik detaylarını sunucuya gönderiyoruz
+                    fetch('save_subscription.php', {
+                        method: 'POST',
+                        body: JSON.stringify(subscription),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('Kullanıcı başarıyla abone oldu.');
+                        } else {
+                            console.log('Abonelik kaydedilemedi.');
+                        }
+                    });
+                }).catch(function(error) {
+                    console.error('Abonelik başarısız:', error);
+                });
+
+            }).catch(function(error) {
+                console.log('Service Worker kaydedilemedi.', error);
+            });
+    }
 
     // VAPID anahtarını Uint8Array formatına çevirme fonksiyonu
     function urlBase64ToUint8Array(base64String) {
@@ -85,35 +103,6 @@ include 'header.php';
             outputArray[i] = rawData.charCodeAt(i);
         }
         return outputArray;
-    }
-</script>
-
-<!-- YENİ PUSH BİLDİRİMİ TEST EDİYORUM -->
-
-
-
-
-
-<script>
-    // Tarayıcıdan bildirim izni iste
-    if ('Notification' in window && 'serviceWorker' in navigator) {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('Bildirim izni verildi.');
-                registerServiceWorker();
-            } else {
-                console.log('Bildirim izni reddedildi.');
-            }
-        });
-    }
-
-    // Service Worker kaydı
-    function registerServiceWorker() {
-        navigator.serviceWorker.register('service-worker.js').then(registration => {
-            console.log('Service Worker başarıyla kaydedildi.', registration);
-        }).catch(error => {
-            console.log('Service Worker kaydedilemedi.', error);
-        });
     }
 
     // Bildirim Göster
