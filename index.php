@@ -42,6 +42,58 @@ $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'header.php';
 ?>
 
+
+<!-- YENİ PUSH BİLDİRİMİ TEST EDİYORUM -->
+
+<script>
+    navigator.serviceWorker.ready.then(function(registration) {
+        const vapidPublicKey = "<?= getenv('VAPID_PUBLIC_KEY') ?>"; // VAPID public anahtarını ekleyin
+        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+        registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: convertedVapidKey
+        }).then(function(subscription) {
+            // Abonelik detaylarını sunucuya gönderiyoruz
+            fetch('save_subscription.php', {
+                method: 'POST',
+                body: JSON.stringify(subscription),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    console.log('Kullanıcı başarıyla abone oldu.');
+                } else {
+                    console.log('Abonelik kaydedilemedi.');
+                }
+            });
+        }).catch(function(error) {
+            console.error('Abonelik başarısız:', error);
+        });
+    });
+
+    // VAPID anahtarını Uint8Array formatına çevirme fonksiyonu
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+</script>
+
+<!-- YENİ PUSH BİLDİRİMİ TEST EDİYORUM -->
+
+
+
+
+
 <script>
     // Tarayıcıdan bildirim izni iste
     if ('Notification' in window && 'serviceWorker' in navigator) {
