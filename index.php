@@ -13,20 +13,26 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Silme işlemi burada yapılır
-if (isset($_POST['delete_ip_id'])) {
-    $ip_id = $_POST['delete_ip_id'];
+// Kategorileri alıyoruz
+$category_stmt = $pdo->query("SELECT * FROM categories");
+$categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // IP'yi veritabanından siliyoruz
-    $stmt = $pdo->prepare("DELETE FROM ips WHERE id = :id");
-    $stmt->execute(['id' => $ip_id]);
+// Kategori filtresi kontrolü
+$selected_category = isset($_GET['category']) ? $_GET['category'] : '';
 
-    header("Location: index.php");
-    exit();
+// IP'leri kategoriye göre filtreleyerek alıyoruz
+$sql = "SELECT * FROM ips";
+if ($selected_category) {
+    $sql .= " WHERE category_id = :category_id";
 }
+$sql .= " ORDER BY name ASC";
 
-// IP'ler ve logları alıyoruz
-$stmt = $pdo->query("SELECT * FROM ips ORDER BY name ASC");
+$stmt = $pdo->prepare($sql);
+if ($selected_category) {
+    $stmt->execute(['category_id' => $selected_category]);
+} else {
+    $stmt->execute();
+}
 $ips = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Logları alıyoruz
@@ -39,6 +45,18 @@ $log_stmt = $pdo->query("
 ");
 $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Silme işlemi burada yapılır
+if (isset($_POST['delete_ip_id'])) {
+    $ip_id = $_POST['delete_ip_id'];
+
+    // IP'yi veritabanından siliyoruz
+    $stmt = $pdo->prepare("DELETE FROM ips WHERE id = :id");
+    $stmt->execute(['id' => $ip_id]);
+
+    header("Location: index.php");
+    exit();
+}
+
 include 'header.php';
 ?>
 
@@ -47,20 +65,14 @@ include 'header.php';
     if ('Notification' in window && 'serviceWorker' in navigator) {
         Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
-                console.log('Bildirim izni verildi.');
                 registerServiceWorkerAndSubscribe();
-            } else {
-                console.log('Bildirim izni reddedildi.');
             }
         });
     }
 
-    // Service Worker kaydı ve Push aboneliği
     function registerServiceWorkerAndSubscribe() {
         navigator.serviceWorker.register('service-worker.js')
             .then(function(registration) {
-                console.log('Service Worker başarıyla kaydedildi.', registration);
-
                 const vapidPublicKey = "BBC9_2E-lrmIPjKyS8PQYsdwUPV_EojCko40zx2jK2NUzX7JP0rr3NMw45fjdXoIG6sCRph_MdoK4AzZ4mMZPJk";
                 const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
@@ -68,35 +80,20 @@ include 'header.php';
                     userVisibleOnly: true,
                     applicationServerKey: convertedVapidKey
                 }).then(function(subscription) {
-                    // Abonelik detaylarını sunucuya gönderiyoruz
                     fetch('save_subscription.php', {
                         method: 'POST',
                         body: JSON.stringify(subscription),
                         headers: {
                             'Content-Type': 'application/json'
                         }
-                    }).then(response => {
-                        if (response.ok) {
-                            console.log('Kullanıcı başarıyla abone oldu.');
-                        } else {
-                            console.log('Abonelik kaydedilemedi.');
-                        }
                     });
-                }).catch(function(error) {
-                    console.error('Abonelik başarısız:', error);
                 });
-
-            }).catch(function(error) {
-                console.log('Service Worker kaydedilemedi.', error);
             });
     }
 
-    // VAPID anahtarını Uint8Array formatına çevirme fonksiyonu
     function urlBase64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
         const rawData = window.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
         for (let i = 0; i < rawData.length; ++i) {
@@ -105,12 +102,11 @@ include 'header.php';
         return outputArray;
     }
 
-    // Bildirim Göster
     function showNotification(title, body) {
         navigator.serviceWorker.ready.then(function(registration) {
             registration.showNotification(title, {
                 body: body,
-                icon: 'icon.png' // Bir ikon ekleyin (opsiyonel)
+                icon: 'icon.png'
             });
         });
     }
@@ -118,6 +114,23 @@ include 'header.php';
 
 <div class="container my-5">
     <h1 class="text-center mb-5">IP Yönetimi - Canlı Liste</h1>
+
+    <!-- Category Filter -->
+    <div class="mb-4">
+        <form method="GET" action="index.php">
+            <div class="d-flex align-items-center">
+                <label for="category" class="me-2">Kategori:</label>
+                <select name="category" id="category" class="form-select" onchange="this.form.submit()">
+                    <option value="">Tüm Kategoriler</option>
+                    <?php foreach ($categories as $category): ?>
+                        <option value="<?= $category['id'] ?>" <?= $selected_category == $category['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($category['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </form>
+    </div>
 
     <!-- Yeni IP Ekle Butonu -->
     <div class="d-flex justify-content-end mb-3">
@@ -172,6 +185,7 @@ include 'header.php';
         </tbody>
     </table>
 
+    <!-- Son Durum Logları -->
     <h3 class="mt-5">Son Durum Logları</h3>
     <ul class="list-group" id="log-list">
         <?php foreach ($logs as $log): ?>
@@ -185,7 +199,7 @@ include 'header.php';
     </ul>
 </div>
 
-<!-- Modal HTML -->
+<!-- Silme Modalı -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -209,7 +223,6 @@ include 'header.php';
 
 <!-- JS: Canlı Güncelleme ve Modal -->
 <script>
-    // Modal açıldığında ilgili IP'nin ID'sini modal formuna koy
     var deleteModal = document.getElementById('deleteModal');
     deleteModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
@@ -218,16 +231,14 @@ include 'header.php';
         deleteInput.value = ipId;
     });
 
-    // Belirli aralıklarla sadece veritabanından veri çek (ping işlemi yok)
     setInterval(() => {
         fetch('get_ping_status.php')
             .then(response => response.json())
             .then(data => {
                 updateIpListAndNotify(data);
             });
-    }, 5000); // 5000 ms = 5 saniye
+    }, 5000);
 
-    // IP listesini ve durumu değişen IP'leri bildir
     function updateIpListAndNotify(data) {
         const ipListBody = document.getElementById('ip-list-body');
         const logList = document.getElementById('log-list');
@@ -236,12 +247,10 @@ include 'header.php';
             const row = document.getElementById('ip-' + ip.id);
             const previousResult = row.querySelector('td:nth-child(4) .badge').textContent.trim().toLowerCase();
 
-            // Durum değiştiyse bildirim gönder
             if (previousResult !== ip.result) {
                 showNotification('IP Durumu Değişti', `${ip.name} (${ip.host_port}) artık ${ip.result}.`);
             }
 
-            // Tüm IP'ler için listeyi güncelle
             if (row) {
                 row.innerHTML = `
                     <td><i class="bi bi-server"></i> <strong>${ip.name}</strong></td>
@@ -259,8 +268,7 @@ include 'header.php';
             }
         });
 
-        // Logları da güncelle
-        logList.innerHTML = ''; // Mevcut logları temizle
+        logList.innerHTML = '';
         data.logs.forEach(log => {
             const logItem = document.createElement('li');
             logItem.classList.add('list-group-item');
