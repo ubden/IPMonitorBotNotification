@@ -257,10 +257,17 @@ include 'header.php';
             }
 
             if (row) {
+                // Ping süresine göre yanıp sönen veya sabit nokta durumu
+                const lastPingTime = new Date(ip.last_ping_time).getTime();
+                const currentTime = new Date().getTime();
+                const timeDiffInMinutes = (currentTime - lastPingTime) / 1000 / 60;
+
+                let dotClass = timeDiffInMinutes <= 5 ? 'blinking' : 'static';
+
                 row.innerHTML = `
                     <td><i class="bi bi-server"></i> <strong>${ip.name}</strong></td>
                     <td><i class="bi bi-hdd-network-fill"></i> ${ip.host_port}</td>
-                    <td><i class="bi bi-clock-history"></i> ${ip.last_ping_time}</td>
+                    <td><i class="ping-status-dot ${dotClass}"></i> <span><i class="bi bi-clock-history"></i> ${ip.last_ping_time}</span></td>
                     <td>${ip.result === 'online' ? 
                         '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Online</span>' : 
                         '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Offline</span>'}</td>

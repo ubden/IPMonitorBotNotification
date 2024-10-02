@@ -141,7 +141,7 @@ select#category:focus {
 }
 
 
-/* Blinking red dot for live IPs (ping in last 5 minutes) */
+/* Yanıp sönen kırmızı nokta */
 .ping-status-dot.blinking {
     height: 10px;
     width: 10px;
@@ -157,7 +157,7 @@ select#category:focus {
     100% { opacity: 1; }
 }
 
-/* Static gray dot for older pings */
+/* Sabit gri nokta */
 .ping-status-dot.static {
     height: 10px;
     width: 10px;
@@ -165,10 +165,6 @@ select#category:focus {
     border-radius: 50%;
     display: inline-block;
 }
-
-
-
-
 
     </style>
 </head>
