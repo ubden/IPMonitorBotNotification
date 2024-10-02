@@ -140,52 +140,50 @@ include 'header.php';
     </div>
 
     <!-- IP Listesi -->
-    <div class="table-responsive">
-        <table class="table table-striped" id="ip-list-table">
-            <thead class="table-dark">
-                <tr>
-                    <th>Ad</th>
-                    <th>IP Adresi</th>
-                    <th>Son Ping</th>
-                    <th>Durum</th>
-                    <th>Uptime</th>
-                    <th>İşlemler</th>
-                </tr>
-            </thead>
-            <tbody id="ip-list-body">
-                <?php foreach ($ips as $ip): ?>
-                <tr id="ip-<?= htmlspecialchars($ip['id']) ?>">
-                    <td data-label="Ad"><i class="bi bi-server"></i> <strong><?= htmlspecialchars($ip['name']) ?></strong></td>
-                    <td data-label="IP Adresi"><i class="bi bi-hdd-network-fill"></i> <?= htmlspecialchars($ip['host_port']) ?></td>
-                    <td data-label="Son Ping"><i class="bi bi-clock-history"></i> <?= htmlspecialchars($ip['last_ping_time']) ?></td>
-                    <td data-label="Durum">
-                        <?php if ($ip['result'] === 'online'): ?>
-                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Online</span>
-                        <?php else: ?>
-                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Offline</span>
-                        <?php endif; ?>
-                    </td>
-                    <td data-label="Uptime">
-                        <?php
-                        if ($ip['result'] === 'online' && $ip['last_online_time']) {
-                            $now = new DateTime();
-                            $last_online = new DateTime($ip['last_online_time']);
-                            $interval = $now->diff($last_online);
-                            echo sprintf('%02d saat %02d dakika', $interval->h, $interval->i);
-                        } else {
-                            echo 'N/A';
-                        }
-                        ?>
-                    </td>
-                    <td data-label="İşlemler">
-                        <a href="edit_ip.php?id=<?= $ip['id'] ?>" class="text-warning me-3"><i class="bi bi-pencil-square"></i></a>
-                        <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="<?= $ip['id'] ?>"><i class="bi bi-trash"></i></a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <table class="table table-striped" id="ip-list-table">
+        <thead class="table-dark">
+            <tr>
+                <th>Ad</th>
+                <th>IP Adresi</th>
+                <th>Son Ping</th>
+                <th>Durum</th>
+                <th>Uptime</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="ip-list-body">
+            <?php foreach ($ips as $ip): ?>
+            <tr id="ip-<?= htmlspecialchars($ip['id']) ?>">
+                <td><i class="bi bi-server"></i> <strong><?= htmlspecialchars($ip['name']) ?></strong></td>
+                <td><i class="bi bi-hdd-network-fill"></i> <?= htmlspecialchars($ip['host_port']) ?></td>
+                <td><i class="bi bi-clock-history"></i> <?= htmlspecialchars($ip['last_ping_time']) ?></td>
+                <td>
+                    <?php if ($ip['result'] === 'online'): ?>
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Online</span>
+                    <?php else: ?>
+                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Offline</span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <?php
+                    if ($ip['result'] === 'online' && $ip['last_online_time']) {
+                        $now = new DateTime();
+                        $last_online = new DateTime($ip['last_online_time']);
+                        $interval = $now->diff($last_online);
+                        echo sprintf('%02d saat %02d dakika', $interval->h, $interval->i);
+                    } else {
+                        echo 'N/A';
+                    }
+                    ?>
+                </td>
+                <td>
+                    <a href="edit_ip.php?id=<?= $ip['id'] ?>" class="text-warning me-3"><i class="bi bi-pencil-square"></i></a>
+                    <a href="#" class="text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="<?= $ip['id'] ?>"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
     <!-- Son Durum Logları -->
     <h3 class="mt-5">Son Durum Logları</h3>
