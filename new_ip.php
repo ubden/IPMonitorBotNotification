@@ -23,17 +23,7 @@ $categories = $category_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Form gönderildiğinde işlemi yap
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Eğer yeni kategori eklendiyse, önce kategoriyi veritabanına ekle
-    if (!empty($_POST['new_category'])) {
-        $new_category = $_POST['new_category'];
-        $stmt = $pdo->prepare("INSERT INTO categories (name) VALUES (:name)");
-        $stmt->bindParam(':name', $new_category);
-        $stmt->execute();
-        $category_id = $pdo->lastInsertId(); // Yeni eklenen kategorinin ID'sini al
-    } else {
-        $category_id = $_POST['category_id']; // Seçili kategori
-    }
-
+    $category_id = $_POST['category_id']; // Seçili kategori
     $name = $_POST['name'];
     $host_port = $_POST['host_port'];
 
@@ -99,10 +89,6 @@ include 'header.php';
                     <option value="<?= $category['id'] ?>"><?= htmlspecialchars($category['name']) ?></option>
                 <?php endforeach; ?>
             </select>
-        </div>
-        <div class="mb-3">
-            <label for="new_category" class="form-label">Yeni Kategori Ekle</label>
-            <input type="text" name="new_category" class="form-control" id="new_category" placeholder="Yeni kategori eklemek için buraya yazın">
         </div>
         <button type="submit" class="btn btn-primary">Ekle</button>
     </form>
