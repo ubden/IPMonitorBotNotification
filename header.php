@@ -141,8 +141,8 @@ select#category:focus {
 }
 
 
-/* Blinking red dot for live IPs */
-.live-dot {
+/* Blinking red dot for live IPs (ping in last 5 minutes) */
+.ping-status-dot.blinking {
     height: 10px;
     width: 10px;
     background-color: red;
@@ -157,8 +157,8 @@ select#category:focus {
     100% { opacity: 1; }
 }
 
-/* Static gray dot for stale IPs */
-.stale-dot {
+/* Static gray dot for older pings */
+.ping-status-dot.static {
     height: 10px;
     width: 10px;
     background-color: gray;
