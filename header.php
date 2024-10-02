@@ -15,42 +15,131 @@ session_start(); // Oturum başlatılıyor
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <!-- Özel CSS -->
     <style>
-        body {
-            background-color: #f0f0f0;
-        }
-        .table {
-            background-color: #ffffff;
-            border-radius: 10px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #343a40;
-        }
-        h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            color: #6c757d;
-        }
-        .badge {
-            font-size: 1rem;
-        }
-        /* Mobil uyumlu tasarım */
-        @media (max-width: 576px) {
-            h1 {
-                font-size: 2rem;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
-        }
+     /* General styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Container */
+.container {
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: #fff;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f2f2f2;
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+}
+
+.table td, .table th {
+    padding: 0.75rem;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Mobile Styling for Table */
+@media (max-width: 768px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody td {
+        display: block;
+        width: 100%;
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .table tbody td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 50%;
+        padding-right: 10px;
+        text-align: left;
+        font-weight: bold;
+    }
+}
+
+/* Button Styling */
+.btn-primary, .btn-secondary {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+/* Distinct Category Filter */
+select#category {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border: 2px solid #343a40;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    width: 100%;
+    transition: border 0.3s ease;
+}
+
+select#category:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    background-color: #343a40;
+    color: #fff;
+    border-bottom: none;
+}
+
+.modal-footer button {
+    border-radius: 20px;
+}
+
+/* Notification Styling */
+.alert {
+    border-radius: 10px;
+    padding: 1rem;
+}
+
     </style>
 </head>
 <body>
