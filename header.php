@@ -140,6 +140,36 @@ select#category:focus {
     padding: 1rem;
 }
 
+
+/* Blinking red dot for live IPs */
+.live-dot {
+    height: 10px;
+    width: 10px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Static gray dot for stale IPs */
+.stale-dot {
+    height: 10px;
+    width: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+
+
+
+
     </style>
 </head>
 <body>
