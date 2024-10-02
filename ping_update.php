@@ -48,9 +48,8 @@ function process_ips($pdo) {
                 $result = ping($host); // Port yoksa ICMP ping atıyoruz
             }
 
-            // Ping her zaman atılır ve last_ping_time güncellenir
-            $status_changed = false;
-            $last_online_time_update = false;
+            $last_online_time_update = false; // Flag for updating last_online_time
+            $status_changed = false; // Flag for status change detection
 
             // Eğer IP'nin durumu değişmişse log ekleyelim
             if ($result !== $ip['result']) {
@@ -64,8 +63,8 @@ function process_ips($pdo) {
                     ':current' => $result
                 ]);
 
-                // Eğer IP yeni online olmuşsa, last_online_time'ı güncelle
-                if ($result === 'online') {
+                // Eğer IP online olduysa ve daha önce offline'duysa last_online_time resetlenecek
+                if ($result === 'online' && $ip['result'] === 'offline') {
                     $last_online_time_update = true;
                 }
             }
@@ -75,13 +74,12 @@ function process_ips($pdo) {
                 UPDATE ips 
                 SET result = :result, 
                     last_ping_time = NOW(), 
-                    last_online_time = IF(:result = 'online' AND :status_changed = true AND :last_online_update = true, NOW(), last_online_time) 
+                    last_online_time = IF(:result = 'online' AND :last_online_update = true, NOW(), last_online_time) 
                 WHERE id = :id
             ");
             $stmt->execute([
                 ':result' => $result,
                 ':id' => $ip['id'],
-                ':status_changed' => $status_changed,
                 ':last_online_update' => $last_online_time_update
             ]);
 
