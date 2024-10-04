@@ -134,15 +134,8 @@ include 'header.php';
 
       <!-- Yeni Kategori Ekle Butonu -->
       <div class="d-flex justify-content-end mb-3">
-        <a href="new_category.php" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Yeni Kategori Ekle
-        </a>
-    </div>
-
-    <!-- Kategori Düzenle Butonu -->
-    <div class="d-flex justify-content-end mb-3">
-        <a href="edit_category.php" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Kategori Düzenle
+        <a href="categories.php" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Kategoriler
         </a>
     </div>
 
