@@ -140,7 +140,6 @@ select#category:focus {
     padding: 1rem;
 }
 
-
 /* Yanıp sönen kırmızı nokta */
 .ping-status-dot.blinking {
     height: 10px;
@@ -178,6 +177,12 @@ select#category:focus {
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="categories.php">Kategoriler</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="settings.php">Ayarlar</a>
+                    </li>
                     <?php if (isset($_SESSION['username'])): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Hoş geldiniz, <?= htmlspecialchars($_SESSION['username']); ?>!</a>
