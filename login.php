@@ -1,7 +1,6 @@
 <?php
 include 'config.php';
 include 'header.php';
-session_start(); // Oturum başlatılıyor
 
 ini_set('display_errors', 1); // Hataları göster
 ini_set('display_startup_errors', 1); // Başlangıç hatalarını göster
