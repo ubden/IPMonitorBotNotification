@@ -1,6 +1,9 @@
 <?php
 include 'config.php';
 include 'header.php';
+ob_start(); // Çıktı tamponlamasını başlatır
+session_start();
+
 
 ini_set('display_errors', 1); // Hataları göster
 ini_set('display_startup_errors', 1); // Başlangıç hatalarını göster

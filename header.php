@@ -1,3 +1,10 @@
+<?php
+ob_start(); // Çıktı tamponlamasını başlatır
+session_start();
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
