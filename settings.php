@@ -112,6 +112,11 @@ include 'header.php';
     <form action="settings.php" method="POST" class="mt-3">
         <button type="submit" name="send_test_message" class="btn btn-warning">Test Mesajı Gönder</button>
     </form>
+
+    <!-- Telegram Bot GetUpdates Butonu -->
+    <form class="mt-3">
+        <a href="https://api.telegram.org/bot<?= htmlspecialchars($telegram_api_token); ?>/getUpdates" target="_blank" class="btn btn-info">Telegram GetUpdates</a>
+    </form>
 </div>
 
 <?php include 'footer.php'; ?>
