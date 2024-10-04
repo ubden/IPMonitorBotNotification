@@ -61,48 +61,50 @@ function check_for_changes() {
             $category_stmt->execute([':category_id' => $ip['category_id']]);
             $telegram_chat_id = $category_stmt->fetchColumn();
 
-            if ($telegram_chat_id) {
-                // Durum değişikliğine göre mesaj oluşturma
-                if (strtolower($ping_result) == "offline") {
-                    // Çevrimdışı (Offline) mesajı
-                    $message = sprintf(
-                        "🚨 <b>ALARM!</b> 🚨\n<b>%s (%s)</b>\nDurum: 🟥 <b>OFFLINE!</b>\nÖnceki Durum: %s",
-                        $ip['host_port'],
-                        $ip['name'],
-                        $previous_log['current_result']
-                    );
-                } elseif (strtolower($ping_result) == "online") {
-                    // Çevrimiçi (Online) mesajı
-                    $message = sprintf(
-                        "🟢 <b>ONLINE</b>\n<b>%s (%s)</b>\nDurum: 🟢 <b>ONLINE</b>\nÖnceki Durum: %s",
-                        $ip['host_port'],
-                        $ip['name'],
-                        $previous_log['current_result']
-                    );
-                } else {
-                    // Diğer durumlar için genel mesaj
-                    $message = sprintf(
-                        "ℹ️ <b>Durum Güncellemesi</b>\n<b>%s (%s)</b>\nDurum: %s\nÖnceki Durum: %s",
-                        $ip['host_port'],
-                        $ip['name'],
-                        $ping_result,
-                        $previous_log['current_result']
-                    );
-                }
-
-                // Telegram mesajını gönder
-                send_telegram_message($message, $telegram_chat_id);
-
-                // Log kaydı oluştur
-                $log_insert_stmt = $pdo->prepare("INSERT INTO ip_logs (ip_id, previous_result, current_result) VALUES (:id, :previous, :current)");
-                $log_insert_stmt->execute([
-                    ':id' => $ip['id'],
-                    ':previous' => $previous_log['current_result'],
-                    ':current' => $ping_result
-                ]);
-            } else {
-                error_log("Kategoriye ait Telegram Chat ID bulunamadı.");
+            // Eğer chat ID çekilemiyorsa hatayı logla
+            if (!$telegram_chat_id) {
+                error_log("Kategoriye ait Telegram Chat ID bulunamadı, Kategori ID: " . $ip['category_id']);
+                continue;
             }
+
+            // Durum değişikliğine göre mesaj oluşturma
+            if (strtolower($ping_result) == "offline") {
+                // Çevrimdışı (Offline) mesajı
+                $message = sprintf(
+                    "🚨 <b>ALARM!</b> 🚨\n<b>%s (%s)</b>\nDurum: 🟥 <b>OFFLINE!</b>\nÖnceki Durum: %s",
+                    $ip['host_port'],
+                    $ip['name'],
+                    $previous_log['current_result']
+                );
+            } elseif (strtolower($ping_result) == "online") {
+                // Çevrimiçi (Online) mesajı
+                $message = sprintf(
+                    "🟢 <b>ONLINE</b>\n<b>%s (%s)</b>\nDurum: 🟢 <b>ONLINE</b>\nÖnceki Durum: %s",
+                    $ip['host_port'],
+                    $ip['name'],
+                    $previous_log['current_result']
+                );
+            } else {
+                // Diğer durumlar için genel mesaj
+                $message = sprintf(
+                    "ℹ️ <b>Durum Güncellemesi</b>\n<b>%s (%s)</b>\nDurum: %s\nÖnceki Durum: %s",
+                    $ip['host_port'],
+                    $ip['name'],
+                    $ping_result,
+                    $previous_log['current_result']
+                );
+            }
+
+            // Telegram mesajını gönder
+            send_telegram_message($message, $telegram_chat_id);
+
+            // Log kaydı oluştur
+            $log_insert_stmt = $pdo->prepare("INSERT INTO ip_logs (ip_id, previous_result, current_result) VALUES (:id, :previous, :current)");
+            $log_insert_stmt->execute([
+                ':id' => $ip['id'],
+                ':previous' => $previous_log['current_result'],
+                ':current' => $ping_result
+            ]);
         }
     }
 }
