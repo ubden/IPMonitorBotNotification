@@ -1,7 +1,3 @@
-<?php
-session_start(); // Oturum başlatılıyor
-?>
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
