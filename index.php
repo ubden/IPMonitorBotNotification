@@ -132,6 +132,13 @@ include 'header.php';
         </form>
     </div>
 
+      <!-- Yeni Kategori Ekle Butonu -->
+      <div class="d-flex justify-content-end mb-3">
+        <a href="new_category.php" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Yeni Kategori Ekle
+        </a>
+    </div>
+    
     <!-- Yeni IP Ekle Butonu -->
     <div class="d-flex justify-content-end mb-3">
         <a href="new_ip.php" class="btn btn-primary">
