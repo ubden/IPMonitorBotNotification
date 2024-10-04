@@ -138,7 +138,14 @@ include 'header.php';
             <i class="bi bi-plus-circle"></i> Yeni Kategori Ekle
         </a>
     </div>
-    
+
+    <!-- Kategori Düzenle Butonu -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="edit_category.php" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Kategori Düzenle
+        </a>
+    </div>
+
     <!-- Yeni IP Ekle Butonu -->
     <div class="d-flex justify-content-end mb-3">
         <a href="new_ip.php" class="btn btn-primary">
