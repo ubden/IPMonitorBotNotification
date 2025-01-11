@@ -1,6 +1,6 @@
 # Ping Test Tool with Telegram Notifications
 
-![PHP](https://img.shields.io/badge/Php-blue?logo=python&logoColor=white)
+![PHP](https://img.shields.io/badge/Php-blue?logo=php&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?logo=opensourceinitiative&logoColor=white)
 ![Telegram](https://img.shields.io/badge/Telegram-Notifications-blue?logo=telegram&logoColor=white)
 
