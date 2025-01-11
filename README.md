@@ -25,7 +25,7 @@ An automated ping test interface that periodically pings the IPs you have added 
 ![Dashboard Screenshot](placeholder-for-image-url)
 
 ### Notification Example
-![Notification Example](placeholder-for-image-url)
+![Notification Example](Telegram_c0mqoWM2QT.png)
 
 ---
 
