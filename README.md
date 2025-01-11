@@ -32,8 +32,7 @@ An automated ping test interface that periodically pings the IPs you have added 
 ## Installation
 
 ### Prerequisites
-- Python 3.x
-- pip
+- PHP 8.x
 - Telegram Bot Token
 
 ### Setup
@@ -88,8 +87,7 @@ Eklemiş olduğunuz IP adreslerini düzenli aralıklarla ping atan ve bir kayıp
 ## Kurulum
 
 ### Gereksinimler
-- Python 3.x
-- pip
+- PHP 8.X
 - Telegram Bot Token
 
 ### Kurulum
