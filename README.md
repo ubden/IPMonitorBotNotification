@@ -39,8 +39,7 @@ An automated ping test interface that periodically pings the IPs you have added 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ping-test-tool.git
-   cd ping-test-tool
+   git clone
    ```
 
 2. Edit files:
@@ -94,8 +93,7 @@ Eklemiş olduğunuz IP adreslerini düzenli aralıklarla ping atan ve bir kayıp
 
 1. Depoyu klonlayın:
    ```bash
-   git clone https://github.com/yourusername/ping-test-tool.git
-   cd ping-test-tool
+   git clone
    ```
 
 2. Size Göre Düzenleyin:
