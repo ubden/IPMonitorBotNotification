@@ -79,7 +79,7 @@ Eklemiş olduğunuz IP adreslerini düzenli aralıklarla ping atan ve bir kayıp
 ![Dashboard Screenshot](placeholder-for-image-url)
 
 ### Bildirim Örneği
-![Notification Example](placeholder-for-image-url)
+![Notification Example](Telegram_c0mqoWM2QT.png)
 
 ---
 
