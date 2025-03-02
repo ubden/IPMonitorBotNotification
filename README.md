@@ -6,6 +6,9 @@
 [![Apple Store](https://img.shields.io/badge/Download%20on%20the-Apple%20Store-black?style=for-the-badge&logo=apple)](https://apps.apple.com/us/app/ucloud-monitor/id6742205340)  
 [![Google Play](https://img.shields.io/badge/Get%20it%20on-Google%20Play-green?style=for-the-badge&logo=google-play)](https://play.google.com/store/apps/details?id=com.app.ucloudmonitor)
 
+![image](https://github.com/user-attachments/assets/fcd0a0dd-134f-4a35-9b6a-675d4058fb80)
+
+
 
 # Ping Test Tool with Telegram Notifications
 
