@@ -1,3 +1,12 @@
+
+# 🚀 **New Advanced Version Available!**  
+
+🎉 **Now on Apple Store & Google Play!** 🎉  
+
+[![Apple Store](https://img.shields.io/badge/Download%20on%20the-Apple%20Store-black?style=for-the-badge&logo=apple)](https://apps.apple.com/us/app/ucloud-monitor/id6742205340)  
+[![Google Play](https://img.shields.io/badge/Get%20it%20on-Google%20Play-green?style=for-the-badge&logo=google-play)](https://play.google.com/store/apps/details?id=com.app.ucloudmonitor)
+
+
 # Ping Test Tool with Telegram Notifications
 
 ![PHP](https://img.shields.io/badge/Php-blue?logo=php&logoColor=white)
